@@ -1,5 +1,5 @@
 PKG_VERSION = v1.10.0
-TALOS_VERSION = v1.10.4
+TALOS_VERSION = v1.10.5
 SBCOVERLAY_VERSION = main
 
 REGISTRY ?= ghcr.io
@@ -7,7 +7,10 @@ REGISTRY_USERNAME ?= talos-rpi5
 
 TAG ?= $(shell git describe --tags --exact-match)
 
-EXTENSIONS ?= ghcr.io/siderolabs/gvisor:20250505.0@sha256:d7503b59603f030b972ceb29e5e86979e6c889be1596e87642291fee48ce380c
+#EXTENSIONS ?= ghcr.io/siderolabs/gvisor:20250505.0@sha256:d7503b59603f030b972ceb29e5e86979e6c889be1596e87642291fee48ce380c
+EXTENSIONS ?= ghcr.io/siderolabs/gvisor:20250625.0
+EXTENSIONS2 ?= ghcr.io/siderolabs/iscsi-tools:v0.2.0
+EXTENSIONS3 ?= ghcr.io/siderolabs/nvme-cli:v2.14
 
 PKG_REPOSITORY = https://github.com/siderolabs/pkgs.git
 TALOS_REPOSITORY = https://github.com/siderolabs/talos.git
@@ -105,7 +108,7 @@ installer:
 			REGISTRY=$(REGISTRY) USERNAME=$(REGISTRY_USERNAME) PUSH=true \
 			PKG_KERNEL=$(REGISTRY)/$(REGISTRY_USERNAME)/kernel:$(PKGS_TAG) \
 			INSTALLER_ARCH=arm64 PLATFORM=linux/arm64 \
-			IMAGER_ARGS="--overlay-name=rpi5 --overlay-image=$(REGISTRY)/$(REGISTRY_USERNAME)/sbc-raspberrypi5:$(SBCOVERLAY_TAG) --system-extension-image=$(EXTENSIONS)" \
+			IMAGER_ARGS="--overlay-name=rpi5 --overlay-image=$(REGISTRY)/$(REGISTRY_USERNAME)/sbc-raspberrypi5:$(SBCOVERLAY_TAG) --system-extension-image=$(EXTENSIONS) --system-extension-image=$(EXTENSIONS2) --system-extension-image=$(EXTENSIONS3)" \
 			kernel initramfs imager installer-base installer && \
 		docker \
 			run --rm -t -v ./_out:/out -v /dev:/dev --privileged $(REGISTRY)/$(REGISTRY_USERNAME)/imager:$(TALOS_TAG) \
@@ -113,7 +116,9 @@ installer:
 			--base-installer-image="$(REGISTRY)/$(REGISTRY_USERNAME)/installer:$(TALOS_TAG)" \
 			--overlay-name="rpi5" \
 			--overlay-image="$(REGISTRY)/$(REGISTRY_USERNAME)/sbc-raspberrypi5:$(SBCOVERLAY_TAG)" \
-			--system-extension-image="$(EXTENSIONS)"
+			--system-extension-image="$(EXTENSIONS)" \
+			--system-extension-image="$(EXTENSIONS2)" \
+			--system-extension-image="$(EXTENSIONS3)"
 
 
 
