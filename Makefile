@@ -1,5 +1,5 @@
 PKG_VERSION = v1.10.0
-TALOS_VERSION = v1.10.5
+TALOS_VERSION = v1.10.7
 SBCOVERLAY_VERSION = main
 
 REGISTRY ?= ghcr.io
@@ -7,10 +7,12 @@ REGISTRY_USERNAME ?= talos-rpi5
 
 TAG ?= $(shell git describe --tags --exact-match)
 
-#EXTENSIONS ?= ghcr.io/siderolabs/gvisor:20250505.0@sha256:d7503b59603f030b972ceb29e5e86979e6c889be1596e87642291fee48ce380c
-EXTENSIONS ?= ghcr.io/siderolabs/gvisor:20250625.0
-EXTENSIONS2 ?= ghcr.io/siderolabs/iscsi-tools:v0.2.0
-EXTENSIONS3 ?= ghcr.io/siderolabs/nvme-cli:v2.14
+# NOTE: crane export ghcr.io/siderolabs/extensions:v1.10.6 | tar x -O image-digests | grep gvisor
+EXTENSIONS ?= ghcr.io/siderolabs/gvisor:20250505.0@sha256:5668fe96d5cec009cc64b27f014814f3e587be3a0f52bdc8bbdcda8af54c812a
+EXTENSIONS2 ?= ghcr.io/siderolabs/iscsi-tools:v0.2.0@sha256:f2d78a7f19d301f2bf88ec99d948ffc63778125ce3acb0146049b75ed7ecd18c
+EXTENSIONS3 ?= ghcr.io/siderolabs/nvme-cli:v2.11@sha256:07b844d21e5b676c2486b558d33ba293d722feddb210a694b1e71922eb423f9b
+EXTENSIONS4 ?= ghcr.io/siderolabs/cloudflared:2024.12.1@sha256:bf77d4786a76b05980cbd0064e1d0161a33642afea2bdfe3966bfc6d75732218
+EXTENSIONS5 ?= ghcr.io/siderolabs/lldpd:1.0.19@sha256:73caa3c3a6c325970d0f527963f982698154d5f39c8c045b0fc2eb51d7da7b85
 
 PKG_REPOSITORY = https://github.com/siderolabs/pkgs.git
 TALOS_REPOSITORY = https://github.com/siderolabs/talos.git
@@ -108,7 +110,7 @@ installer:
 			REGISTRY=$(REGISTRY) USERNAME=$(REGISTRY_USERNAME) PUSH=true \
 			PKG_KERNEL=$(REGISTRY)/$(REGISTRY_USERNAME)/kernel:$(PKGS_TAG) \
 			INSTALLER_ARCH=arm64 PLATFORM=linux/arm64 \
-			IMAGER_ARGS="--overlay-name=rpi5 --overlay-image=$(REGISTRY)/$(REGISTRY_USERNAME)/sbc-raspberrypi5:$(SBCOVERLAY_TAG) --system-extension-image=$(EXTENSIONS) --system-extension-image=$(EXTENSIONS2) --system-extension-image=$(EXTENSIONS3)" \
+			IMAGER_ARGS="--overlay-name=rpi5 --overlay-image=$(REGISTRY)/$(REGISTRY_USERNAME)/sbc-raspberrypi5:$(SBCOVERLAY_TAG) --system-extension-image=$(EXTENSIONS) --system-extension-image=$(EXTENSIONS2) --system-extension-image=$(EXTENSIONS3) --system-extension-image=$(EXTENSIONS4) --system-extension-image=$(EXTENSIONS5)" \
 			kernel initramfs imager installer-base installer && \
 		docker \
 			run --rm -t -v ./_out:/out -v /dev:/dev --privileged $(REGISTRY)/$(REGISTRY_USERNAME)/imager:$(TALOS_TAG) \
@@ -118,7 +120,9 @@ installer:
 			--overlay-image="$(REGISTRY)/$(REGISTRY_USERNAME)/sbc-raspberrypi5:$(SBCOVERLAY_TAG)" \
 			--system-extension-image="$(EXTENSIONS)" \
 			--system-extension-image="$(EXTENSIONS2)" \
-			--system-extension-image="$(EXTENSIONS3)"
+			--system-extension-image="$(EXTENSIONS3)" \
+			--system-extension-image="$(EXTENSIONS4)" \
+			--system-extension-image="$(EXTENSIONS5)"
 
 
 
